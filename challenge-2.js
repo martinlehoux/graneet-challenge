@@ -1,17 +1,17 @@
 function getMaxZeroSequenceLength(number) {
-  if (number === 0) return 1
+  if (number === 0) return 1;
   const bin = convertToBinary(number).reverse();
   let seq = 0;
   let maxSeq = 0;
   for (const bit of bin) {
     if (bit === 1) {
-      maxSeq = Math.max(seq, maxSeq)
-      seq = 0
+      maxSeq = Math.max(seq, maxSeq);
+      seq = 0;
     } else {
-      seq = seq + 1
+      seq = seq + 1;
     }
   }
-  return maxSeq
+  return maxSeq;
 }
 
 function convertToBinary(number) {
