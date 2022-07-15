@@ -1,24 +1,26 @@
-function computePieceNumber(values, amount) {
-  if (amount === 0) {
-    return 0;
-  }
-  if (values.length === 0) {
-    return -1;
-  }
-  values = values.sort((a, b) => b - a);
-  const val = values[0];
 
-  if (val === amount) {
-    return 1;
+function computePieceNumber(values, amount) {
+  const cache = new Map()
+  cache.set(0,0)
+  
+  function step(amount) {
+    amount = Number(amount.toFixed(5))
+    if (cache.get(amount) !== undefined) return cache.get(amount)
+    const usable = values.filter(val => val <= amount)
+    if (usable.length === 0) {
+      cache.set(amount, -1)
+      return -1
+    }
+    const solutions = usable.map(val => step(amount-val)).filter(res => res >= 0)
+    const result = solutions.length > 0 ? Math.min(...solutions) +1 : -1
+    cache.set(amount, result)
+    return result
   }
-  if (val > amount) {
-    return computePieceNumber(values.slice(1), amount);
-  }
-  if (val < amount) {
-    const number = computePieceNumber(values, amount - val);
-    if (number === -1) return -1;
-    return number + 1;
-  }
+
+  return step(amount)
 }
+
+
+computePieceNumber([3], 3)
 
 module.exports = { computePieceNumber };
