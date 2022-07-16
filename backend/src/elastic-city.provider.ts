@@ -1,6 +1,6 @@
 import { ElasticsearchService } from "@nestjs/elasticsearch";
 import { CityDto } from "./city.dto";
-import { CityService } from "./city.service";
+import { CityService, SearchResult } from "./city.service";
 import { Injectable } from "@nestjs/common";
 
 const INDEX = "city";
@@ -9,19 +9,29 @@ const INDEX = "city";
 export class ElasticCityProvider implements CityService {
   constructor(private readonly elasticsearch: ElasticsearchService) {}
 
-  async search(query: string, count: number): Promise<CityDto[]> {
+  async search(query: string, count: number): Promise<SearchResult> {
     const result = await this.elasticsearch.search<CityDto>({
       index: INDEX,
       query: {
-        multi_match: {
-          query,
-          fields: ["code", "postalCode", "name"],
+        dis_max: {
+          queries: [
+            {
+              fuzzy: {
+                name: { value: query, max_expansions: 10, fuzziness: "AUTO" },
+              },
+            },
+            { prefix: { postalCode: { value: query } } },
+          ],
         },
       },
       from: 0,
       size: count,
     });
-    return result.hits.hits.map((hit) => hit._source);
+    const cities = result.hits.hits.map((hit) => hit._source);
+    return {
+      metropoleCities: cities.filter((city) => !this.isOverseas(city)),
+      overseasCities: cities.filter((city) => this.isOverseas(city)),
+    };
   }
 
   async index(cities: CityDto[]): Promise<void> {
@@ -33,5 +43,9 @@ export class ElasticCityProvider implements CityService {
       refresh: true,
       operations,
     });
+  }
+
+  private isOverseas(city: CityDto): boolean {
+    return city.postalCode.startsWith("97");
   }
 }
