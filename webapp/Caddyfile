@@ -1,0 +1,14 @@
+localhost {
+	encode gzip
+
+	route /api/* {
+		uri strip_prefix /api
+		reverse_proxy http://backend:3000
+	}
+
+	route /* {
+		file_server {
+			root /usr/share/caddy
+		}
+	}
+}

@@ -1,2 +1,5 @@
 node_modules/
 dist/
+.snowpack/
+build/
+codes-postaux.json
