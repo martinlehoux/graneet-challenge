@@ -5,7 +5,7 @@ const INDEX = "city";
 
 describe("ElasticCityProvider", () => {
   const elasticsearchService = new ElasticsearchService({
-    node: "http://localhost:9200",
+    node: process.env.ELASTICSEARCH_HOST,
   });
   const cityService = new ElasticCityProvider(elasticsearchService);
 
