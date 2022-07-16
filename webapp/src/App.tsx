@@ -1,19 +1,12 @@
 import React from 'react';
-import { useQuery } from 'react-query';
-import type { City, SearchResult } from './city';
 import CitySection from './CitySection';
 import Header from './Header';
-import { useDebounce } from './useDebounce';
+import { useSearchCityQuery } from './useSearchCityQuery';
 
 const App = () => {
-  // TODO: Debounce
   const [search, setSearch] = React.useState('');
-  const debounced = useDebounce(search, 300);
-  const url = new URL('city/search', 'http://localhost:3000');
-  url.searchParams.append('q', debounced);
-  const query = useQuery<SearchResult>(['searchCitites', debounced], () =>
-    fetch(url).then((res) => res.json()),
-  );
+  
+  const query = useSearchCityQuery(search)
 
   return (
     <div
